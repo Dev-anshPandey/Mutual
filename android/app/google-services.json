@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "609037289694",
+    "project_id": "mutual-ecfaf",
+    "storage_bucket": "mutual-ecfaf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609037289694:android:120fb29e28b666ade39a4f",
+        "android_client_info": {
+          "package_name": "com.mutual.live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "609037289694-h9mojc9mronat0ooi4ek6m87mmf60v61.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB973xjGc4X7Cb4eto3EFgZ4truw2NeWNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "609037289694-h9mojc9mronat0ooi4ek6m87mmf60v61.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
