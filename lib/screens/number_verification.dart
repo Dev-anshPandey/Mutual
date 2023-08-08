@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constant/ip_address.dart';
 import 'otp_widget.dart';
 
 String number = "";
@@ -102,7 +103,7 @@ class _NumberWidgetState extends State<NumberWidget> {
   Future apiOtp(String Number) async {
     var headers = {'Content-Type': 'application/json'};
     var request = http.Request(
-        'POST', Uri.parse('http://3.110.164.26/v1/api/user/send/otp'));
+        'POST', Uri.parse('http://${IP.ipAddress}/v1/api/user/send/otp'));
     request.body = json.encode({"phoneNumber": Number});
     request.headers.addAll(headers);
 
@@ -118,7 +119,7 @@ class _NumberWidgetState extends State<NumberWidget> {
   Future apiResendOtp(String Number) async {
     var headers = {'Content-Type': 'application/json'};
     var request = http.Request(
-        'POST', Uri.parse('http://3.110.164.26/v1/api/user/resend/otp'));
+        'POST', Uri.parse('http://${IP.ipAddress}/v1/api/user/resend/otp'));
     request.body = json.encode({"phoneNumber": Number});
     request.headers.addAll(headers);
 
@@ -144,7 +145,7 @@ class _NumberWidgetState extends State<NumberWidget> {
   Future apiCallVerify(String Number, String otp) async {
     var headers = {'Content-Type': 'application/json'};
     var request = http.Request(
-        'POST', Uri.parse('http://3.110.164.26/v1/api/user/verify'));
+        'POST', Uri.parse('http://${IP.ipAddress}/v1/api/user/verify'));
     request.body = json.encode({
       "phoneNumber": Number,
       "otp": otp,
@@ -307,7 +308,7 @@ class _NumberWidgetState extends State<NumberWidget> {
     print("fcm token is $fcm");
 
     var request = http.Request(
-        'POST', Uri.parse('http://3.110.164.26/v1/api/user/update/fcm'));
+        'POST', Uri.parse('http://${IP.ipAddress}/v1/api/user/update/fcm'));
     request.body = json.encode({"fcmToken": fcm});
     request.headers.addAll(headers);
 

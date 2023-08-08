@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mutual/screens/api.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/api.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:mutual/screens/see_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../constant/ip_address.dart';
 
 var items = [];
 String _dropDownValue = " ";
@@ -21,7 +23,7 @@ String selected = "";
 
 TextEditingController myController = TextEditingController();
 DioClient d = DioClient();
-DioClientP dp = DioClientP();
+
 
 
 class EditProfile extends StatefulWidget {
@@ -33,7 +35,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   Future apigetUser() async {
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/details');
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/details');
     print('firstaName issss');
     print(request.data['data']['firstName']);
     if (request.statusCode == 200) {
@@ -72,11 +74,11 @@ class _EditProfileState extends State<EditProfile> {
 
   Future apiCallOptions() async {
     var request = await d.dio.get(
-      'http://3.110.164.26/v1/api/user/list/options',
+      'http://${IP.ipAddress}/v1/api/user/list/options',
     );
 
     final response = await d.dio.get(
-      'http://3.110.164.26/v1/api/user/list/options',
+      'http://${IP.ipAddress}/v1/api/user/list/options',
     );
     if (response.statusCode == 200) {
       String res = await response.data.toString();
@@ -114,7 +116,7 @@ class _EditProfileState extends State<EditProfile> {
     });
     try {
       var response = await d.dio.post(
-        'http://3.110.164.26/v1/api/user/image/upload',
+        'http://${IP.ipAddress}/v1/api/user/image/upload',
         data: formData,
         options: option,
       );
@@ -149,7 +151,7 @@ class _EditProfileState extends State<EditProfile> {
     });
     print(selected);
     final response = await d.dio
-        .post('http://3.110.164.26/v1/api/user/profile/update', data: data);
+        .post('http://${IP.ipAddress}/v1/api/user/profile/update', data: data);
     if (response.statusCode == 200) {
       print(await response.data.toString());
     } else {

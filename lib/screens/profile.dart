@@ -7,9 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mutual/screens/api.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../constant/ip_address.dart';
 
 var items = [];
 String _dropDownValue = " ";
@@ -19,7 +20,7 @@ String name = "";
 String selected = "";
 TextEditingController myController = TextEditingController();
 DioClient d = DioClient();
-DioClientP dp = DioClientP();
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -53,11 +54,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future apiCallOptions() async {
     var request = await d.dio.get(
-      'http://3.110.164.26/v1/api/user/list/options',
+      'http://${IP.ipAddress}/v1/api/user/list/options',
     );
 
     final response = await d.dio.get(
-      'http://3.110.164.26/v1/api/user/list/options',
+      'http://${IP.ipAddress}/v1/api/user/list/options',
     );
     if (response.statusCode == 200) {
       String res = await response.data.toString();
@@ -95,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     try {
       var response = await d.dio.post(
-        'http://3.110.164.26/v1/api/user/image/upload',
+        'http://${IP.ipAddress}/v1/api/user/image/upload',
         data: formData,
         options: option,
       );
@@ -144,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     print(selected);
     final response = await d.dio
-        .post('http://3.110.164.26/v1/api/user/saveName', data: data);
+        .post('http://${IP.ipAddress}/v1/api/user/saveName', data: data);
     if (response.statusCode == 200) {
       print(await response.data.toString());
     } else {

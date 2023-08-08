@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -11,19 +10,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:moment_dart/moment_dart.dart';
-import 'package:mutual/provider/chat_provider.dart';
 import 'package:mutual/provider/feed_provider.dart';
 import 'package:mutual/provider/graphID_provider.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:mutual/screens/notification.dart';
-import 'package:mutual/screens/profile.dart';
+import 'package:mutual/widgets/chat_user.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:readmore/readmore.dart';
 import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../provider/chat_response_provider.dart';
+import '../constant/ip_address.dart';
+import '../widgets/feed_card.dart';
 
 int index = 0;
 DioClient d = DioClient();
@@ -65,7 +63,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   initSocket() async {
     print(await getAccessTokens());
 
-    socket = IO.io('ws://3.110.164.26/', <String, dynamic>{
+    socket = IO.io('ws://${IP.ipAddress}/', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'query': {'accessToken': await getAccessTokens()}
@@ -80,9 +78,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   }
 
   Future apigetUser() async {
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/details');
-    print('firstaName issss');
-    print(request.data['data']['firstName']);
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/details');
     if (request.statusCode == 200) {
       setState(() {
         name = request.data['data']['firstName'];
@@ -96,7 +92,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   }
 
   Future apiGetConfig() async {
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/config');
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/config');
     if (request.statusCode == 200) {
       setState(() {
         dc = request.data['data']['reach']['DC'];
@@ -108,23 +104,21 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       SharedPreferences pref = await SharedPreferences.getInstance();
       await pref.setInt("postReach", sum);
     } else {
-      print(request.statusMessage);
+    
     }
   }
 
   Future apiFeed() async {
     feed.clear();
     var request = await d.dio.get(
-      'http://3.110.164.26/v1/api/feed/get',
+      'http://${IP.ipAddress}/v1/api/feed/get',
     );
     List postId = [];
-    print("length is");
-    print(request.data['data'].length);
+   
     for (int i = 0; i < request.data['data'].length; i++) {
       postId.add(request.data['data'][i]['postId']);
       setState(() {
-        print("post content is");
-        print(request.data['data'][i]['post']);
+
         String mutual = "";
         String time = DateFormat.jm().format(DateTime.now());
         try {
@@ -149,7 +143,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                       .toString() ??
               "";
 
-          print(time);
+         
         } catch (e) {
           print(e);
         }
@@ -174,10 +168,9 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     }
     var data = jsonEncode(postId);
     var response =
-        await d.dio.post('http://3.110.164.26/v1/api/post/views', data: data);
+        await d.dio.post('http://${IP.ipAddress}/v1/api/post/views', data: data);
 
     if (request.statusCode == 200) {
-      print("Response body :");
       print(await request.data.toString());
     } else {
       print(request.statusMessage);
@@ -187,9 +180,9 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   Future apiMyPost() async {
     feed.clear();
     var request = await d.dio.get(
-      'http://3.110.164.26/v1/api/feed/myfeed',
+      'http://${IP.ipAddress}/v1/api/feed/myfeed',
     );
-    print("length is");
+   ;
     print(request.data['data'].length);
     for (int i = 0; i < request.data['data'].length; i++) {
       setState(() {
@@ -218,7 +211,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                                   .toString()))
                       .toString() ??
               "";
-          print(time);
+         
         } catch (e) {
           print(e);
         }
@@ -245,7 +238,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     }
 
     if (request.statusCode == 200) {
-      print("Response body :");
       print(await request.data.toString());
     } else {
       print(request.statusMessage);
@@ -258,18 +250,12 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       List postId = [];
       try {
         int cId = feed[0].cursor;
-        print(cId);
         var request = await d.dio.get(
-          'http://3.110.164.26/v1/api/feed/get?after=$cId&before=null',
+          'http://${IP.ipAddress}/v1/api/feed/get?after=$cId&before=null',
         );
-        print("refreshhh");
-        print(request.data.toString());
         for (int i = 0; i < request.data['data'].length; i++) {
           postId.add(request.data['data'][i]['postId']);
-          setState(() {
-            print("post content is");
-            print(request.data['data'][i]['post']);
-            print(Moment.parse((request.data['data'][i]['createdAt'])).LT);
+          setState(() {     
             String mutual = "";
             String time = DateFormat.jm().format(DateTime.now());
 
@@ -322,10 +308,9 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         }
         var data = jsonEncode(postId);
         var response = await d.dio
-            .post('http://3.110.164.26/v1/api/post/views', data: data);
+            .post('http://${IP.ipAddress}/v1/api/post/views', data: data);
 
         if (request.statusCode == 200) {
-          print("Response body :");
           print(await request.data.toString());
         } else {
           print(request.statusMessage);
@@ -340,14 +325,12 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
 
   Future apigetContacts() async {
     contactsPresnet.clear();
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/exists');
-    print(request);
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/exists');
     if (request.statusCode == 200) {
       for (var sd in request.data['data']['userExist']) {
-        print(sd['phoneNumber']);
         // contactsPresnet.add(sd['phoneNumber']);
         setState(() {
-          contactsPresnet.add(ListContact(
+          contactsPresnet.add(ChatUser(
               name: sd['firstName'],
               phoneNo: sd['phoneNumber'],
               profilePic: sd['profilePic'],
@@ -362,15 +345,15 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     if (myPost.length != 0) {
       try {
         int cId = myPost[0].cursor;
-        print(cId);
+       
         var request = await d.dio.get(
-          'http://3.110.164.26/v1/api/feed/myfeed?after=$cId&before=null',
+          'http://${IP.ipAddress}/v1/api/feed/myfeed?after=$cId&before=null',
         );
-        print("refreshhh");
+    
         print(request.data.toString());
         for (int i = 0; i < request.data['data'].length; i++) {
           setState(() {
-            print("post content is");
+          
             print(request.data['data'][i]['post']);
             print(Moment.parse((request.data['data'][i]['createdAt'])).LT);
             String mutual = "";
@@ -424,7 +407,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         }
 
         if (request.statusCode == 200) {
-          print("Response body :");
           print(await request.data.toString());
         } else {
           print(request.statusMessage);
@@ -442,16 +424,13 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     if (feed.length != 0) {
       List postId = [];
       int cId = feed[feed.length - 1].cursor;
-      // feed.clear();
-      print(cId);
       var request = await d.dio.get(
-        'http://3.110.164.26/v1/api/feed/get?before=$cId&after=null',
+        'http://${IP.ipAddress}/v1/api/feed/get?before=$cId&after=null',
       );
       print(request.data.toString());
       for (int i = 0; i < request.data['data'].length; i++) {
         postId.add(request.data['data'][i]['postId']);
         setState(() {
-          print("post content is");
           print(request.data['data'][i]['post']);
           print(Moment.parse((request.data['data'][i]['createdAt'])).LT);
           String mutual = "";
@@ -504,15 +483,13 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       }
       var data = jsonEncode(postId);
       var response =
-          await d.dio.post('http://3.110.164.26/v1/api/post/views', data: data);
+          await d.dio.post('http://${IP.ipAddress}/v1/api/post/views', data: data);
       if (request.statusCode == 200) {
-        print("Response body :");
         print(await request.data.toString());
       } else {
         print(request.statusMessage);
       }
     }
-    print('object');
     _refreshController.loadComplete();
   }
 
@@ -522,14 +499,13 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       print(myPost.length - 1);
       int cId = myPost[myPost.length - 1].cursor;
       // feed.clear();
-      print(cId);
+
       var request = await d.dio.get(
-        'http://3.110.164.26/v1/api/feed/myfeed?before=$cId&after=null',
+        'http://${IP.ipAddress}/v1/api/feed/myfeed?before=$cId&after=null',
       );
       print(request.data.toString());
       for (int i = 0; i < request.data['data'].length; i++) {
         setState(() {
-          print("post content is");
           print(request.data['data'][i]['post']);
           print(Moment.parse((request.data['data'][i]['createdAt'])).LT);
           String mutual = "";
@@ -583,13 +559,12 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       }
 
       if (request.statusCode == 200) {
-        print("Response body :");
+    
         print(await request.data.toString());
       } else {
         print(request.statusMessage);
       }
     }
-    print('object');
     _refreshController2.loadComplete();
   }
 
@@ -628,8 +603,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         <String, dynamic>{}) as Map;
 
     if (skip == false) index = arguments['indexNo'] ?? 0;
-    //print(feed[0].cursor);
-    // fp.deleteAll();
+    
     return ChangeNotifierProvider(
         create: (context) => FeedProvider(),
         child: Consumer(
@@ -645,7 +619,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
               for (var element in myPost) {
                 fp.addPost(element);
               }
-              print("cursor");
+
             }
             void onsearch(String value) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -1072,39 +1046,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   }
 }
 
-// class FloatingButton extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     _FeedState feed = _FeedState();
-//     return FloatingActionButton(
-//         shape: const RoundedRectangleBorder(
-//             borderRadius: BorderRadius.all(Radius.circular(81))),
-//         onPressed: () {
-//           print(MaterialLocalizations.of(context));
-//           showModalBottomSheet(
-//               isScrollControlled: true,
-//               context: context,
-//               builder: (BuildContext context) {
-//                 return BottomWidget(fp);
-//               });
-//         },
-//         child: Padding(
-//           padding: const EdgeInsets.all(0),
-//           child: Container(
-//             height: 56,
-//             width: 132,
-//             decoration: const BoxDecoration(
-//                 gradient: LinearGradient(
-//                     colors: [Color(0xff4988EF), Color(0xff476DEE)]),
-//                 borderRadius: BorderRadius.all(Radius.circular(8))),
-//             child: const Icon(
-//               Icons.add,
-//               size: 30,
-//             ),
-//           ),
-//         ));
-//   }
-// }
+
 
 class BottomWidget extends StatefulWidget {
   FeedProvider fp;
@@ -1124,15 +1066,13 @@ class _BottomWidgetState extends State<BottomWidget> {
     ];
     var data = jsonEncode({"post": postBody, "media": postArr});
     var response =
-        await d.dio.post('http://3.110.164.26/v1/api/feed/post', data: data);
+        await d.dio.post('http://${IP.ipAddress}/v1/api/feed/post', data: data);
 
     setState(() {
       pId = response.data['data']['postId'];
     });
-    print("PID is $pId");
     socket.emit('joinRoom', {'roomId': response.data['data']['postId']});
     if (response.statusCode == 200) {
-      // print(await response.data.toString());
     } else {
       print(response.statusCode);
     }
@@ -1150,7 +1090,6 @@ class _BottomWidgetState extends State<BottomWidget> {
       setState(() {
         this.image = imageTemp;
         imageGlobal = image.path;
-        print("image path");
         print(imageGlobal);
       });
     } on PlatformException catch (e) {
@@ -1160,7 +1099,6 @@ class _BottomWidgetState extends State<BottomWidget> {
   }
 
   Future apiCallUploadImage() async {
-    print('for image');
     FormData formData = await FormData.fromMap({
       'image': await MultipartFile.fromFile(imageGlobal!),
       'path': imageGlobal
@@ -1172,7 +1110,7 @@ class _BottomWidgetState extends State<BottomWidget> {
     });
     try {
       var response = await d.dio.post(
-        'http://3.110.164.26/v1/api/user/image/post/image',
+        'http://${IP.ipAddress}/v1/api/user/image/post/image',
         data: formData,
         options: option,
       );
@@ -1196,7 +1134,6 @@ class _BottomWidgetState extends State<BottomWidget> {
       Fluttertoast.showToast(
         msg: "File size too large",
       );
-      // print('breakk');
     }
   }
 
@@ -1435,81 +1372,7 @@ class _BottomWidgetState extends State<BottomWidget> {
                                     MediaQuery.of(context).size.height * 0.025),
                           ),
                         ),
-                        // postBody.split(' ').length < 6 ||
-                        //         postBody.split(' ').length > 600
-                        //     ? Container(
-                        //         height: MediaQuery.of(context).size.height * 0.04,
-                        //         width: MediaQuery.of(context).size.width * 0.2,
-                        //         decoration: const BoxDecoration(
-                        //             gradient: LinearGradient(colors: [
-                        //               Colors.grey,
-                        //               Colors.grey,
-                        //             ]),
-                        //             borderRadius:
-                        //                 BorderRadius.all(Radius.circular(81))),
-                        //         child: Center(
-                        //           child: Text(
-                        //             'Post',
-                        //             style: TextStyle(
-                        //               color: Colors.white,
-                        //               fontSize:
-                        //                   MediaQuery.of(context).size.height * 0.019,
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       )
-                        //     : Consumer<FeedProvider>(
-                        //         builder: (context, value, child) {
-                        //           final fp =
-                        //               Provider.of<FeedProvider>(context, listen: false);
-                        //           return InkWell(
-                        //             onTap: () {
-                        //               apiCreatePost();
-                        //               //fp.deleteAll();
-                        //               feed.insert(
-                        //                   0,
-                        //                   FeedCard(
-                        //                       firstName: name!,
-                        //                       post: postBody,
-                        //                       profilePic: profilePic!,
-                        //                       profession: profession!,
-                        //                       time: now.LT.toString(),
-                        //                       authorGraphId: 0,
-                        //                       postId: postId!));
-                        //               // fp.addList(FeedCard(
-                        //               //     firstName: name!,
-                        //               //     post: postBody,
-                        //               //     profilePic: profilePic!,
-                        //               //     profession: profession!));
-
-                        //               Navigator.pop(context);
-                        //               //fp.addList(FeedCard(post:postBody,firstName:"Devansh",));
-                        //             },
-                        //             child: Container(
-                        //               height: MediaQuery.of(context).size.height * 0.04,
-                        //               width: MediaQuery.of(context).size.width * 0.2,
-                        //               decoration: const BoxDecoration(
-                        //                   gradient: LinearGradient(colors: [
-                        //                     Color(0xff4988EF),
-                        //                     Color(0xff476DEE)
-                        //                   ]),
-                        //                   borderRadius:
-                        //                       BorderRadius.all(Radius.circular(81))),
-                        //               child: Center(
-                        //                 child: Text(
-                        //                   'Post',
-                        //                   style: TextStyle(
-                        //                     color: Colors.white,
-                        //                     fontSize:
-                        //                         MediaQuery.of(context).size.height *
-                        //                             0.019,
-                        //                   ),
-                        //                 ),
-                        //               ),
-                        //             ),
-                        //           );
-                        //         },
-                        //       ),
+                       
                       ],
                     ),
                     SizedBox(
@@ -1572,501 +1435,5 @@ class _BottomWidgetState extends State<BottomWidget> {
   }
 }
 
-class FeedCard extends StatelessWidget {
-  String firstName;
-  String profilePic;
-  String post;
-  String profession;
-  String? mutual;
-  String time;
-  int? cursor;
-  int authorGraphId;
-  String postId;
-  bool selfCreated;
-  String? chatID;
-  String? postUrl;
-  FeedCard(
-      {required this.firstName,
-      required this.selfCreated,
-      required this.post,
-      required this.profilePic,
-      required this.profession,
-      required this.time,
-      required this.authorGraphId,
-      required this.postId,
-      required this.chatID,
-      required this.postUrl,
-      this.cursor,
-      this.mutual});
-  Future apiFullPostView(
-      String postID, bool selfTrue, int authorGId, String? chatID) async {
-    print("chatt id is $chatID");
-    var request = await d.dio.get(
-        'http://3.110.164.26/v1/api/feed/post/view?postId=$postId&selfPost=$selfTrue&authorGraphId=$authorGId&chatID=$chatID');
 
-    //print(request.data);
-    if (request.statusCode == 200) {
-    } else {
-      print(request.statusMessage);
-    }
-    List chatIDs = [];
-    String chatId;
-    print(selfTrue);
-    if (selfTrue == false) {
-      print(request.data['data']['chatId']);
-      chatId = request.data['data']['chatId'];
-      return chatId;
-    } else {
-      if (request.data['data'].length > 0) {
-        for (var cid in request.data['data']) {
-          print(cid['chatId']);
-          chatIDs.add(cid['chatId']);
-        }
-      }
-    }
-    return chatIDs;
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ChatProvider>(
-      builder: (context, value, child) {
-        final cp = Provider.of<ChatProvider>(context, listen: false);
-        final cpr = Provider.of<ChatRProvider>(context, listen: false);
-        return InkWell(
-          onTap: () async {
-            if (selfCreated == true) {
-              List cId = await apiFullPostView(
-                  postId, selfCreated, authorGraphId, chatID ?? null);
-              print('object is $authorGraphId');
-              cp.setData(
-                  nameData: firstName,
-                  postData: post,
-                  postIDData: postId,
-                  professionData: profession,
-                  timeData: time,
-                  graphData: authorGraphId,
-                  socketData: socket,
-                  chatsId: cId,
-                  chatId: "",
-                  mutual: mutual ?? "",
-                  profileData: profilePic);
-              cpr.setData(
-                  postCursor: 0,
-                  nameData: firstName,
-                  postData: post,
-                  postIDData: postId,
-                  professionData: profession,
-                  timeData: time,
-                  graphData: authorGraphId,
-                  socketData: socket,
-                  postUrl: postUrl ?? "",
-                  chatId: "",
-                  mutual: mutual ?? "",
-                  profileData: profilePic);
-
-              Navigator.pushNamed(context, '/self');
-            } else {
-              String cId = await apiFullPostView(
-                  postId, selfCreated, authorGraphId, chatID ?? null);
-              print("graph id is $authorGraphId");
-              cp.setData(
-                  nameData: firstName,
-                  postData: post,
-                  postIDData: postId,
-                  professionData: profession,
-                  timeData: time,
-                  graphData: authorGraphId,
-                  socketData: socket,
-                  chatsId: [],
-                  chatId: cId,
-                  mutual: mutual ?? "",
-                  profileData: profilePic);
-              Navigator.pushNamed(context, '/chat');
-            }
-          },
-          child: Padding(
-            padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * 0.014,
-                left: MediaQuery.of(context).size.width * 0.0,
-                right: MediaQuery.of(context).size.width * 0.0),
-            child: Container(
-              color: Colors.white,
-              width: MediaQuery.of(context).size.width,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.004,
-                    left: MediaQuery.of(context).size.width * 0.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Consumer<GraphID>(
-                          builder: (context, value, child) {
-                            final gp =
-                                Provider.of<GraphID>(context, listen: false);
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                  top:
-                                      MediaQuery.of(context).size.height * 0.00,
-                                  left:
-                                      MediaQuery.of(context).size.width * 0.02),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pushNamed(context, '/seeProfile',
-                                      arguments: {'graphID': authorGraphId});
-                                  gp.setGID(authorGraphId);
-                                },
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    profilePic,
-                                  ),
-                                  radius: 18.5,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.0,
-                              bottom: MediaQuery.of(context).size.height * 0.01,
-                              left: MediaQuery.of(context).size.width * 0.03),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.82,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          firstName,
-                                          style: GoogleFonts.roboto(
-                                            textStyle: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.019),
-                                          ),
-                                        ),
-                                        mutual == null || mutual == ""
-                                            ? Container(
-                                                height: 0,
-                                                width: 0,
-                                              )
-                                            : Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: MediaQuery.of(context)
-                                                            .size
-                                                            .height *
-                                                        0.0025,
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.03),
-                                                child: Row(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      backgroundColor:
-                                                          Color(0xff336FD7),
-                                                      radius: 5.5,
-                                                      child: CircleAvatar(
-                                                        radius: 4.5,
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        child: Text(
-                                                          'm',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: GoogleFonts
-                                                              .roboto(
-                                                                  textStyle:
-                                                                      TextStyle(
-                                                            color: Color(
-                                                                0xff336FD7),
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            fontSize: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.009,
-                                                          )),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 4,
-                                                    ),
-                                                    Text("$mutual Mutual",
-                                                        style:
-                                                            GoogleFonts.roboto(
-                                                                textStyle:
-                                                                    TextStyle(
-                                                          color:
-                                                              Color(0xff336FD7),
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          fontSize: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.012,
-                                                        )))
-                                                  ],
-                                                ),
-                                              ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Icon(
-                                                Icons.remove_red_eye,
-                                                color: Colors.grey,
-                                                size: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.014,
-                                              ),
-                                              Text(
-                                                " 100 ",
-                                                style: GoogleFonts.roboto(
-                                                  textStyle: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Color(0xffA8A8A8),
-                                                      // fontWeight: FontWeight.bold,
-                                                      fontSize:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.013),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 0.0, right: 4),
-                                    child: Text(
-                                      profession,
-                                      style: GoogleFonts.roboto(
-                                        textStyle: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            color: Color(0xffA8A8A8),
-                                            // fontWeight: FontWeight.bold,
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.013),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 2.0, right: 6),
-                                    child: CircleAvatar(
-                                      radius: 2,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    time,
-                                    style: GoogleFonts.roboto(
-                                      textStyle: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          color: Color(0xffA8A8A8),
-                                          // fontWeight: FontWeight.bold,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.013),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).size.height * 0.01,
-                          left: MediaQuery.of(context).size.width * 0.03),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 1,
-                        child: ReadMoreText(
-                          post,
-                          trimLines: 3,
-                          colorClickableText: Color(0xff336FD7),
-                          trimMode: TrimMode.Line,
-
-                          // overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.start,
-                          //softWrap: true,
-                          trimCollapsedText: 'show more',
-                          trimExpandedText: '  show less',
-                          style: GoogleFonts.roboto(
-                            textStyle: TextStyle(
-                                color: Color(0xff373737),
-                                fontWeight: FontWeight.w400,
-                                fontSize:
-                                    MediaQuery.of(context).size.height * 0.022),
-                          ),
-                        ),
-                      ),
-                    ),
-                    postUrl!.isNotEmpty
-                        ? Padding(
-                            padding: EdgeInsets.only(
-                                bottom:
-                                    MediaQuery.of(context).size.height * 0.014,
-                                left: MediaQuery.of(context).size.width * 0.0),
-                            child: Image.network(
-                              postUrl ?? "",
-                              height: MediaQuery.of(context).size.height * 0.5,
-                              width: MediaQuery.of(context).size.width * 1,
-                              fit: BoxFit.fill,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.2,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xff4666ED),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          )
-                        : SizedBox(
-                            height: 0,
-                          )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class ListContact extends StatelessWidget {
-  String name;
-  String phoneNo;
-  String profilePic;
-  bool onPlatform;
-  ListContact(
-      {required this.name,
-      required this.phoneNo,
-      required this.profilePic,
-      required this.onPlatform});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height * 0.00,
-          left: MediaQuery.of(context).size.width * 0.04,
-          bottom: MediaQuery.of(context).size.height * 0.01,
-          right: MediaQuery.of(context).size.width * 0.07),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              profilePic == ""
-                  ? Icon(
-                      Icons.account_circle_outlined,
-                      color: Colors.grey,
-                      size: MediaQuery.of(context).size.height * 0.055,
-                    )
-                  : CircleAvatar(
-                      backgroundImage: NetworkImage(profilePic),
-                      radius: MediaQuery.of(context).size.height * 0.025,
-                    ),
-              SizedBox(
-                width: 10,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: GoogleFonts.roboto(
-                        textStyle: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    phoneNo,
-                    style: GoogleFonts.roboto(
-                        textStyle: TextStyle(
-                            fontWeight: FontWeight.w400, color: Colors.grey)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // InkWell(
-          //   onTap: () {
-          //     Navigator.pushNamed(context, '/feed',arguments: {'indexNo':1});
-          //   },
-          //   child: Text(
-          //     onPlatform == true ? "Add to chat" : "Invite",
-          //     style: GoogleFonts.roboto(
-          //         textStyle: TextStyle(
-          //             fontWeight: FontWeight.w700,
-          //             decoration: TextDecoration.underline,
-          //             color: Color(0xff3E6CE9))),
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-}

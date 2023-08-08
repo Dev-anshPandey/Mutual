@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:mutual/screens/number_verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../constant/ip_address.dart';
 //final apiProvider = Provider((ref) => DioInterceptor());
  int state = 0;
 class Welcome extends ConsumerStatefulWidget {
@@ -55,7 +57,7 @@ class _WelcomeState extends ConsumerState<Welcome> {
     }
     // print(request.data.toString());
     final response = await d.dio
-        .post('http://3.110.164.26/v1/api/user/contacts', data: temp);
+        .post('http://${IP.ipAddress}/v1/api/user/contacts', data: temp);
     //print(response.data.toString());
     if (response.statusCode == 200) {
       String res = response.data.toString();

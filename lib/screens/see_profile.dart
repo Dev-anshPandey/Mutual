@@ -11,9 +11,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mutual/provider/graphID_provider.dart';
 import 'package:mutual/screens/chat.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../constant/ip_address.dart';
 
 String _dropDownValue = " ";
 String? imageGlobal;
@@ -48,7 +50,7 @@ class _SeeProfileState extends State<SeeProfile> {
     print('object $garphID');
 
     var request = await d.dio
-        .get('http://3.110.164.26/v1/api/user/details?graphId=$garphID');
+        .get('http://${IP.ipAddress}/v1/api/user/details?graphId=$garphID');
     print('firstaName issss $garphID');
     print(request.data['data']['firstName']);
     if (request.statusCode == 200) {
@@ -68,7 +70,7 @@ class _SeeProfileState extends State<SeeProfile> {
   }
 
   Future apiMyDetail() async {
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/details');
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/details');
 
     if (request.statusCode == 200) {
       setState(() {
@@ -91,7 +93,7 @@ class _SeeProfileState extends State<SeeProfile> {
 
     var data = jsonEncode({"graphId": garphID});
     var response = await d.dio
-        .post('http://3.110.164.26/v1/api/user/block/user', data: data);
+        .post('http://${IP.ipAddress}/v1/api/user/block/user', data: data);
     if (response.statusCode == 200) {
     } else {
       print(response.statusMessage);
@@ -135,7 +137,7 @@ class _SeeProfileState extends State<SeeProfile> {
     });
     try {
       var response = await d.dio.post(
-        'http://3.110.164.26/v1/api/user/image/upload',
+        'http://${IP.ipAddress}/v1/api/user/image/upload',
         data: formData,
         options: option,
       );

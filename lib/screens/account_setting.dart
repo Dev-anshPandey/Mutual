@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mutual/screens/db.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/database/db.dart';
+import 'package:mutual/interceptor/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../constant/ip_address.dart';
 
 DioClient d = DioClient();
 
@@ -25,7 +27,7 @@ class _AccountSettingState extends State<AccountSetting> {
 
   late Database dbnew;
   Future apiLogout() async {
-    var request = await d.dio.get('http://3.110.164.26//v1/api/user/logout');
+    var request = await d.dio.get('http://${IP.ipAddress}//v1/api/user/logout');
 
     if (request.statusCode == 200) {
       setState(() {});

@@ -8,7 +8,7 @@ import 'package:mutual/provider/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'db.dart';
+import '../database/db.dart';
 import 'feed.dart';
 
 MyDb mydb = new MyDb();

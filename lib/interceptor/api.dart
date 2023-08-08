@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constant/ip_address.dart';
+
 class DioInterceptor extends Interceptor {
   final Dio api = Dio();
   String? accessToken;
@@ -81,7 +83,7 @@ class DioInterceptor extends Interceptor {
     print("Refreshh");
     SharedPreferences pref = await SharedPreferences.getInstance();
     final refreshToken = await pref.getString('refreshToken').toString();
-    final response = await api.get('http://3.110.164.26/v1/api/user/token',
+    final response = await api.get('http://${IP.ipAddress}/v1/api/user/token',
         options: Options(headers: {'refreshToken': refreshToken}));
 
     if (response.statusCode == 200) {

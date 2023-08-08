@@ -1,7 +1,9 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mutual/screens/dio.dart';
+import 'package:mutual/interceptor/dio.dart';
+
+import '../constant/ip_address.dart';
 
 List<Contact> contacts = [];
 Future? _future;
@@ -20,7 +22,7 @@ class _AddContactState extends State<AddContact> {
   Future apigetUser() async {
     display.clear();
     await getContact();
-    var request = await d.dio.get('http://3.110.164.26/v1/api/user/exists');
+    var request = await d.dio.get('http://${IP.ipAddress}/v1/api/user/exists');
     print(request);
     if (request.statusCode == 200) {
       for (var sd in request.data['data']['userExist']) {
