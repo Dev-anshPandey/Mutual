@@ -146,8 +146,9 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
             primarySwatch: Colors.blue,
             appBarTheme: AppBarTheme(
+               
                 systemOverlayStyle:
-                    SystemUiOverlayStyle(statusBarColor: Colors.white))),
+                    SystemUiOverlayStyle(statusBarColor: Colors.white,))),
         routes: {
           '/': (context) => isloggedIn == 'true' ? Feed() : Onboarding(),
           //  '/': (context) => Onboarding(),

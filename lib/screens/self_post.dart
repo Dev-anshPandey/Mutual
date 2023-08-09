@@ -192,13 +192,3 @@ class _SelfPostState extends State<SelfPost> {
     );
   }
 }
-
-
-
-
-//khud ki profile pe block nhi karna h
-//tumhai profile me view block contact , 3 dots
-// design
-// closed chat popup design
-// akshat chat left
-// chat profile pic

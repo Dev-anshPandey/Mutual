@@ -1,13 +1,7 @@
 import 'dart:async';
-import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:moment_dart/moment_dart.dart';
@@ -139,6 +133,26 @@ class _ChatState extends State<Chat> {
           });
         }
         chat.addAll(temp.reversed);
+        for (var element in temp.reversed) {
+          dbnew.rawInsert(
+              "INSERT INTO chat (postId,chatId, message ,right,profilePic,name,postId2,time,profession,mutual,cursor,graphId,post,authorName) VALUES (?,?, ?, ?,?, ?, ?,?, ?, ?,?,?,?,?);",
+              [
+                element.postId2,
+                element.chatId,
+                element.text,
+                element.right,
+                element.profilePic,
+                element.name,
+                element.postId2,
+                element.time,
+                element.profession,
+                element.mutual ?? "",
+                element.cursor,
+                element.graphId,
+                cp.post,
+                cp.name
+              ]);
+        }
       }
     });
 

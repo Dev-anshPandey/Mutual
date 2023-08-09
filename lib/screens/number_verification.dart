@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constant/ip_address.dart';
-import 'otp_widget.dart';
+import '../widgets/otp_widget.dart';
 
 String number = "";
 bool tnCState = true;

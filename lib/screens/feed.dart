@@ -655,6 +655,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                     return [
                       index == 0
                           ? SliverAppBar(
+                            systemOverlayStyle: SystemUiOverlayStyle.dark,
                               floating: true,
                               pinned: true,
                               backgroundColor: Colors.white,
@@ -1155,6 +1156,7 @@ class _BottomWidgetState extends State<BottomWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(
@@ -1392,7 +1394,7 @@ class _BottomWidgetState extends State<BottomWidget> {
                                 top: MediaQuery.of(context).size.height * 0.01),
                             child: CircleAvatar(
                               backgroundImage: NetworkImage(
-                                profilePic!,
+                                profilePic??"",
                               ),
                               radius: 20.5,
                             ),
