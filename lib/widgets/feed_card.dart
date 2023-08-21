@@ -10,7 +10,6 @@ import '../provider/graphID_provider.dart';
 import '../interceptor/dio.dart';
 import '../screens/feed.dart';
 
-
 class FeedCard extends StatelessWidget {
   String firstName;
   String profilePic;
@@ -24,6 +23,7 @@ class FeedCard extends StatelessWidget {
   bool selfCreated;
   String? chatID;
   String? postUrl;
+  int? view;
   FeedCard(
       {required this.firstName,
       required this.selfCreated,
@@ -36,6 +36,7 @@ class FeedCard extends StatelessWidget {
       required this.chatID,
       required this.postUrl,
       this.cursor,
+      this.view,
       this.mutual});
   Future apiFullPostView(
       String postID, bool selfTrue, int authorGId, String? chatID) async {
@@ -159,12 +160,29 @@ class FeedCard extends StatelessWidget {
                                       arguments: {'graphID': authorGraphId});
                                   gp.setGID(authorGraphId);
                                 },
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    profilePic,
-                                  ),
-                                  radius: 18.5,
-                                ),
+                                child: profilePic.isNotEmpty
+                                    ? CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          profilePic,
+                                        ),
+                                        radius:
+                                            MediaQuery.of(context).size.height *
+                                                0.024,
+                                      )
+                                    : CircleAvatar(
+                                        radius:
+                                            MediaQuery.of(context).size.height *
+                                                0.024,
+                                        backgroundColor: Colors.white,
+                                        child: Icon(
+                                          Icons.account_circle_outlined,
+                                          color: Colors.grey,
+                                          size: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.05,
+                                        ),
+                                      ),
                               ),
                             );
                           },
@@ -291,8 +309,11 @@ class FeedCard extends StatelessWidget {
                                                         .height *
                                                     0.014,
                                               ),
+                                              SizedBox(
+                                                width: 2,
+                                              ),
                                               Text(
-                                                " 100 ",
+                                                view.toString(),
                                                 style: GoogleFonts.roboto(
                                                   textStyle: TextStyle(
                                                       fontWeight:
@@ -397,26 +418,52 @@ class FeedCard extends StatelessWidget {
                                 bottom:
                                     MediaQuery.of(context).size.height * 0.014,
                                 left: MediaQuery.of(context).size.width * 0.0),
-                            child: Image.network(
-                              postUrl ?? "",
-                              height: MediaQuery.of(context).size.height * 0.5,
-                              width: MediaQuery.of(context).size.width * 1,
-                              fit: BoxFit.fill,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.2,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xff4666ED),
+                            child: AspectRatio(
+                              aspectRatio: 16 / 13,
+                              child: Image.network(
+                                postUrl ?? "",
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                width: MediaQuery.of(context).size.width * 1,
+                                fit: BoxFit.fill,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5,
+                                    width:
+                                        MediaQuery.of(context).size.width * 1,
+                                    child: Center(
+                                        child: Text(
+                                      "Failed to load image",
+                                      style: GoogleFonts.roboto(
+                                        textStyle: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xffA8A8A8),
+                                            // fontWeight: FontWeight.bold,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.018),
+                                      ),
+                                    )),
+                                  );
+                                },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5,
+                                    width:
+                                        MediaQuery.of(context).size.width * 1,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: Color(0xff4666ED),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           )
                         : SizedBox(

@@ -42,16 +42,12 @@ class SeeProfile extends StatefulWidget {
 class _SeeProfileState extends State<SeeProfile> {
   File? image;
   Future apigetUser() async {
-    // final arguments = (ModalRoute.of(context)?.settings.arguments ??
-    //     <String, dynamic>{}) as Map;
     final fp = Provider.of<GraphID>(context, listen: false);
-
     garphID = fp.graphID;
     print('object $garphID');
 
     var request = await d.dio
         .get('http://${IP.ipAddress}/v1/api/user/details?graphId=$garphID');
-    print('firstaName issss $garphID');
     print(request.data['data']['firstName']);
     if (request.statusCode == 200) {
       setState(() {
@@ -60,6 +56,7 @@ class _SeeProfileState extends State<SeeProfile> {
         profession = request.data['data']['profession'];
         try {
           mutual = request.data['data']['mutuals'][0]['firstName'];
+          print("mutual is $mutual");
         } catch (e) {
           print(e);
         }
@@ -169,8 +166,6 @@ class _SeeProfileState extends State<SeeProfile> {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuild');
-    print(profileUrl);
     final fp = Provider.of<GraphID>(context, listen: false);
     return SafeArea(
       child: Scaffold(
@@ -321,7 +316,7 @@ class _SeeProfileState extends State<SeeProfile> {
                       ),
                     ),
                   ),
-                  mutual == ""
+                  fp.graphID == myGraphId
                       ? Container(
                           height: 0,
                           width: 0,

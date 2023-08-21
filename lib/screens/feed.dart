@@ -103,9 +103,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       // SharedPreferences.setMockInitialValues({});
       SharedPreferences pref = await SharedPreferences.getInstance();
       await pref.setInt("postReach", sum);
-    } else {
-    
-    }
+    } else {}
   }
 
   Future apiFeed() async {
@@ -114,11 +112,10 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       'http://${IP.ipAddress}/v1/api/feed/get',
     );
     List postId = [];
-   
+
     for (int i = 0; i < request.data['data'].length; i++) {
       postId.add(request.data['data'][i]['postId']);
       setState(() {
-
         String mutual = "";
         String time = DateFormat.jm().format(DateTime.now());
         try {
@@ -142,8 +139,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                                   .toString()))
                       .toString() ??
               "";
-
-         
         } catch (e) {
           print(e);
         }
@@ -163,12 +158,13 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
           postUrl: request.data['data'][i]['media'][0] != null
               ? request.data['data'][i]['media'][0]['url']
               : "",
+          view: request.data['data'][i]['views'] ?? 0,
         ));
       });
     }
     var data = jsonEncode(postId);
-    var response =
-        await d.dio.post('http://${IP.ipAddress}/v1/api/post/views', data: data);
+    var response = await d.dio
+        .post('http://${IP.ipAddress}/v1/api/post/views', data: data);
 
     if (request.statusCode == 200) {
       print(await request.data.toString());
@@ -182,7 +178,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     var request = await d.dio.get(
       'http://${IP.ipAddress}/v1/api/feed/myfeed',
     );
-   ;
+    ;
     print(request.data['data'].length);
     for (int i = 0; i < request.data['data'].length; i++) {
       setState(() {
@@ -211,7 +207,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                                   .toString()))
                       .toString() ??
               "";
-         
         } catch (e) {
           print(e);
         }
@@ -219,6 +214,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         myPost.add(
           FeedCard(
             firstName: request.data['data'][i]['firstName'] ?? "Tushar",
+            view: request.data['data'][i]['views'] ?? 0,
             post: request.data['data'][i]['post'] ?? "",
             profilePic: request.data['data'][i]['profilePic'] ?? "",
             profession: request.data['data'][i]['profession'][0] ?? "",
@@ -255,7 +251,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         );
         for (int i = 0; i < request.data['data'].length; i++) {
           postId.add(request.data['data'][i]['postId']);
-          setState(() {     
+          setState(() {
             String mutual = "";
             String time = DateFormat.jm().format(DateTime.now());
 
@@ -289,6 +285,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
               0,
               FeedCard(
                 firstName: request.data['data'][i]['firstName'] ?? "Tushar",
+                view: request.data['data'][i]['views'] ?? 0,
                 post: request.data['data'][i]['post'] ?? "",
                 profilePic: request.data['data'][i]['profilePic'] ?? "",
                 profession: request.data['data'][i]['profession'] ?? "",
@@ -345,15 +342,14 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
     if (myPost.length != 0) {
       try {
         int cId = myPost[0].cursor;
-       
+
         var request = await d.dio.get(
           'http://${IP.ipAddress}/v1/api/feed/myfeed?after=$cId&before=null',
         );
-    
+
         print(request.data.toString());
         for (int i = 0; i < request.data['data'].length; i++) {
           setState(() {
-          
             print(request.data['data'][i]['post']);
             print(Moment.parse((request.data['data'][i]['createdAt'])).LT);
             String mutual = "";
@@ -389,6 +385,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
               FeedCard(
                 firstName: request.data['data'][i]['firstName'] ?? "Tushar",
                 post: request.data['data'][i]['post'] ?? "",
+                view: request.data['data'][i]['views'] ?? 0,
                 profilePic: request.data['data'][i]['profilePic'] ?? "",
                 profession: request.data['data'][i]['profession'] ?? "",
                 cursor: request.data['data'][i]['cursor'] ?? 4,
@@ -465,6 +462,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
           feed.add(
             FeedCard(
                 firstName: request.data['data'][i]['firstName'] ?? "Tushar",
+                view: request.data['data'][i]['views'] ?? 0,
                 post: request.data['data'][i]['post'] ?? "",
                 profilePic: request.data['data'][i]['profilePic'] ?? "",
                 profession: request.data['data'][i]['profession'] ?? "",
@@ -482,8 +480,8 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         });
       }
       var data = jsonEncode(postId);
-      var response =
-          await d.dio.post('http://${IP.ipAddress}/v1/api/post/views', data: data);
+      var response = await d.dio
+          .post('http://${IP.ipAddress}/v1/api/post/views', data: data);
       if (request.statusCode == 200) {
         print(await request.data.toString());
       } else {
@@ -540,6 +538,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
           myPost.add(
             FeedCard(
                 firstName: request.data['data'][i]['firstName'],
+                view: request.data['data'][i]['views'] ?? 0,
                 post: request.data['data'][i]['post'] ?? "",
                 profilePic: request.data['data'][i]['profilePic'] ?? "",
                 profession:
@@ -559,7 +558,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
       }
 
       if (request.statusCode == 200) {
-    
         print(await request.data.toString());
       } else {
         print(request.statusMessage);
@@ -603,7 +601,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
         <String, dynamic>{}) as Map;
 
     if (skip == false) index = arguments['indexNo'] ?? 0;
-    
+
     return ChangeNotifierProvider(
         create: (context) => FeedProvider(),
         child: Consumer(
@@ -619,7 +617,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
               for (var element in myPost) {
                 fp.addPost(element);
               }
-
             }
             void onsearch(String value) {
               SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -655,7 +652,7 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                     return [
                       index == 0
                           ? SliverAppBar(
-                            systemOverlayStyle: SystemUiOverlayStyle.dark,
+                              systemOverlayStyle: SystemUiOverlayStyle.dark,
                               floating: true,
                               pinned: true,
                               backgroundColor: Colors.white,
@@ -678,6 +675,8 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
                                 ],
                                 labelColor: Colors.white,
                               ),
+                              leadingWidth: 10,
+                              titleSpacing: 0,
                               // centerTitle: false,
                               title: Image.asset(
                                 'assets/splash.png',
@@ -1047,8 +1046,6 @@ class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
   }
 }
 
-
-
 class BottomWidget extends StatefulWidget {
   FeedProvider fp;
   BottomWidget(this.fp);
@@ -1374,7 +1371,6 @@ class _BottomWidgetState extends State<BottomWidget> {
                                     MediaQuery.of(context).size.height * 0.025),
                           ),
                         ),
-                       
                       ],
                     ),
                     SizedBox(
@@ -1394,7 +1390,7 @@ class _BottomWidgetState extends State<BottomWidget> {
                                 top: MediaQuery.of(context).size.height * 0.01),
                             child: CircleAvatar(
                               backgroundImage: NetworkImage(
-                                profilePic??"",
+                                profilePic ?? "",
                               ),
                               radius: 20.5,
                             ),
@@ -1436,6 +1432,3 @@ class _BottomWidgetState extends State<BottomWidget> {
     );
   }
 }
-
-
-

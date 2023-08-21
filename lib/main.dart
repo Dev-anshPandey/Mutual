@@ -48,6 +48,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future main() async {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.white, // status bar color
+  ));
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   RemoteMessage? initialMessage =
@@ -145,13 +148,15 @@ class _MyAppState extends State<MyApp> {
         initialRoute: '/',
         theme: ThemeData(
             primarySwatch: Colors.blue,
-            appBarTheme: AppBarTheme(
-               
-                systemOverlayStyle:
-                    SystemUiOverlayStyle(statusBarColor: Colors.white,))),
+            // appBarTheme: AppBarTheme(
+            //     systemOverlayStyle: SystemUiOverlayStyle(
+            //         statusBarColor: Colors.white,
+            //         statusBarBrightness: Brightness.light)
+            //         )
+                    ),
         routes: {
-          '/': (context) => isloggedIn == 'true' ? Feed() : Onboarding(),
-          //  '/': (context) => Onboarding(),
+           '/': (context) => isloggedIn == 'true' ? Feed() : Onboarding(),
+            // '/': (context) => Onboarding(),
           '/number': (context) => Number(),
           '/profile': (context) => ProfileScreen(),
           '/contactAccess': (context) => ContactAccess(),
@@ -163,7 +168,7 @@ class _MyAppState extends State<MyApp> {
           '/setting': (context) => Setting(),
           '/accountSetting': (context) => AccountSetting(),
           '/addContact': (context) => AddContact(),
-          '/editProfile':(context) => EditProfile()
+          '/editProfile': (context) => EditProfile()
           // '/chatResponse': (context) => ChatResponse()
         },
       ),

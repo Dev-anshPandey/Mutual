@@ -21,7 +21,6 @@ String selected = "";
 TextEditingController myController = TextEditingController();
 DioClient d = DioClient();
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -39,7 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         this.image = imageTemp;
         imageGlobal = image.path;
-        
       });
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
@@ -170,26 +168,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     //String dropdownvalue = "Item 1";
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height * 0.03,
-            bottom: MediaQuery.of(context).size.height * 0.025,
+            top: MediaQuery.of(context).size.height * 0.01 ,
+            bottom: MediaQuery.of(context).viewInsets.bottom == 0
+                ? MediaQuery.of(context).size.height * 0.04
+                : MediaQuery.of(context).viewInsets.bottom + 2,
             left: MediaQuery.of(context).size.width * 0.06,
             right: MediaQuery.of(context).size.width * 0.06),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.06,
           width: MediaQuery.of(context).size.width * 0.85,
           child: Container(
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [Color(0xff3795F1), Color(0xff3E6CE9)]),
+            decoration: BoxDecoration(
+                gradient: name.isNotEmpty && profileUrl.isNotEmpty
+                    ? const LinearGradient(
+                        colors: [Color(0xff3795F1), Color(0xff3E6CE9)])
+                    : const LinearGradient(colors: [Colors.grey, Colors.grey]),
                 borderRadius: BorderRadius.all(Radius.circular(8))),
             child: ElevatedButton(
               onPressed: () {
-                apiCallSaveData();
-                Navigator.pushNamed(context, '/feed');
+                if (name.isNotEmpty && profileUrl.isNotEmpty) {
+                  apiCallSaveData();
+                  Navigator.pushNamed(context, '/feed');
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
